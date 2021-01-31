@@ -14,7 +14,7 @@ This is a simple C program that uses multiple processes and pipes to read a file
 Installation
 ------------
 ```sh
-$ gcc -g -lm -o main main.c
+$ make
 $ ./main <input_file.txt>
 ```
 
