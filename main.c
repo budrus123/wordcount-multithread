@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 	char *fileName = argv[1];
 
 	if (argc < 2) {
-		printf("Please enter a file name.\nUsage: ./programName <file_name>\n");
+		printf("Please enter a file name.\nUsage: ./main <file_name>\n");
 		return -1;
 	}
 
