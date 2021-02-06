@@ -47,16 +47,16 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	if (!validateTextFile(fileName)) {
-		printf("Make sure file is of type .txt!\n");
-		return -1;
-
-	}
-
 	FILE *file = fopen(fileName, "r");
 
 	if (file == 0) {
 		printf("Could not open file: %s.\n",fileName );
+		return -1;
+	}
+
+	if (!validateTextFile(fileName)) {
+		printf("Make sure file is of type .txt!\n");
+		return -1;
 	}
 
 	if (pipe(parent2Child) == -1 || pipe(child2Parent) == -1){
@@ -87,7 +87,11 @@ int main(int argc, char **argv) {
 		close(child2Parent[WRITE_END]);
 		int numberOfWordsFromChild;
 		read(child2Parent[READ_END], &numberOfWordsFromChild, sizeof(numberOfWordsFromChild));
-		printf("Process 1: The total number of words is %d.\n", numberOfWordsFromChild);
+		printf("Process 1: The total number of words is %d.", numberOfWordsFromChild);
+		if (numberOfWordsFromChild == 0) {
+			printf(" File is empty.");
+		}
+		printf("\n");
 		close(child2Parent[READ_END]);
 	}
 	
@@ -99,9 +103,10 @@ int main(int argc, char **argv) {
 		read(parent2Child[READ_END], rcvd, totalLength);
 		printf("Process 2 finishes receiving data from Process 1 ...\n");	
 		printf("Process 2 is counting the words now ...\n");	
-		int numberOfWords = wordCount(rcvd, totalLength);
-		close(parent2Child[READ_END]);
-
+		int numberOfWords = 0;
+		if (totalLength > 0) {
+			numberOfWords = wordCount(rcvd, totalLength);
+		}
 		close(child2Parent[READ_END]);
 		printf("Process 2 is sending the results back to Process 1 ...\n");	
 		write(child2Parent[WRITE_END], &numberOfWords, sizeof(numberOfWords));
