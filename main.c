@@ -49,16 +49,19 @@ int main(int argc, char **argv) {
 
 	FILE *file = fopen(fileName, "r");
 
+	// Handling if the file cannot be opened.
 	if (file == 0) {
 		printf("Could not open file: %s.\n",fileName );
 		return -1;
 	}
 
+	// Handling if the file is not of .txt extension.
 	if (!validateTextFile(fileName)) {
 		printf("Make sure file is of type .txt!\n");
 		return -1;
 	}
 
+	// Handling error in pipe creation.
 	if (pipe(parent2Child) == -1 || pipe(child2Parent) == -1){
 		printf("Error creating pipe!\n");
 		return 1;
@@ -70,6 +73,13 @@ int main(int argc, char **argv) {
 		printf("Cant create thread!");
 	}
 
+	/*
+		Parent Process:
+		- Reads file
+		- Sends file length
+		- Sends file content
+		- Waits for and prints the word count
+	*/
 	else if (pid > 0) {
 		printf("Process 1 is reading the input file '%s' now ...\n", argv[1]);	
 		close(parent2Child[READ_END]);
@@ -95,6 +105,13 @@ int main(int argc, char **argv) {
 		close(child2Parent[READ_END]);
 	}
 	
+	/*
+		Child Process:
+		- Recieves length from Parent
+		- Recieves file content
+		- Counts the actual number of words
+		- Sends the word count back to Parent
+	*/
 	else {
 		close(parent2Child[WRITE_END]);
 		long totalLength;
